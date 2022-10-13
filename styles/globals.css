@@ -1,3 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .navBtn {
+    @apply hidden h-7 md:inline-flex cursor-pointer
+    hover:scale-110 transition-all duration-300 ease-out;
+  }
+
+  .btn {
+    @apply h-7 hover:scale-125 cursor-pointer
+    transition-all duration-300 ease-out;
+  }
+}
+
 html,
 body {
   padding: 0;
@@ -13,14 +29,4 @@ a {
 
 * {
   box-sizing: border-box;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
 }
