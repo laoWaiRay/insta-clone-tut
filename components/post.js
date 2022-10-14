@@ -52,7 +52,7 @@ export default function Post({ id, username, userImg, img, caption }) {
         <FaceSmileIcon className='h-7 cursor-pointer' />
         <input type='text' placeholder='Leave a comment...' 
           className='border-none flex-1 focus:ring-0 outline-none
-          mr-3'
+          mx-3'
         />
         <button className='font-semibold text-blue-400'>Post</button>
       </form>

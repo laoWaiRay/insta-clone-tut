@@ -10,8 +10,13 @@ import {
   Bars3Icon,
   HomeIcon
 } from "@heroicons/react/24/outline"
+import { useSession, signIn, signOut } from 'next-auth/react'
 
 export default function Header() {
+  const { data: session } = useSession();
+
+  console.log(session);
+
   return (
     <header className='shadow-sm border-b z-50 bg-white'>
       <div className='flex justify-between items-center max-w-6xl mx-auto px-4'>
@@ -26,7 +31,7 @@ export default function Header() {
         <div className='w-10 h-10 hover:cursor-pointer relative md:hidden mt-1'>
           <img 
             className='object-contain'
-            src="svg/insta-logo.svg"
+            src="/svg/insta-logo.svg"
             alt='instagram logo'
           />
         </div>
@@ -48,23 +53,38 @@ export default function Header() {
         <div className='flex justify-center items-center space-x-4'>
           <Bars3Icon className='h-10 w-10 md:hidden hover:cursor-pointer'/>
           <HomeIcon className='navBtn'/>
-          <div className='navBtn relative'>
-            <PaperAirplaneIcon className='navBtn -rotate-45' />
-            <div 
-              className='absolute -top-1 -right-2 text-xs w-5 h-5 
-              bg-red-500 rounded-full flex justify-center items-center
-              text-white'
-            >
-              3
-            </div>
-          </div>
+
+          {
+            session ? 
+            (
+              <>
+                <div className='navBtn relative'>
+                <PaperAirplaneIcon className='navBtn -rotate-45' />
+                <div 
+                  className='absolute -top-1 -right-2 text-xs w-5 h-5 
+                  bg-red-500 rounded-full flex justify-center items-center
+                  text-white'
+                >
+                  3
+                </div>
+                </div>
+                
+                <PlusCircleIcon className='navBtn' />
+                <UserGroupIcon className='navBtn' />
+                <HeartIcon className='navBtn' />
+                <div onClick={signOut}
+                  className='w-10 h-10 relative hover:cursor-pointer'
+                >
+                  <Image src={session?.user?.image} width={40} height={40} alt="Profile" className='rounded-full'/>
+                </div>
+              </>
+            ) : 
+            <button onClick={signIn}>Sign In</button>
+          }
+
           
-          <PlusCircleIcon className='navBtn' />
-          <UserGroupIcon className='navBtn' />
-          <HeartIcon className='navBtn' />
-          <div className='w-10 h-10 relative hover:cursor-pointer'>
-            <Image src='/images/profile.jpg' width={40} height={40} alt="Profile" className='rounded-full'/>
-          </div>
+
+
         </div>
       </div>
     </header>

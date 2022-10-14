@@ -12,6 +12,20 @@
     @apply h-7 hover:scale-125 cursor-pointer
     transition-all duration-300 ease-out;
   }
+
+  .login-phone-bg {
+    background-size: 468.21px 634.15px;
+    background-position: -48px -5px;
+  }
+
+  .iphone-img {
+    position: absolute;
+    right: 19px;
+    height: 545px;
+    width: 251px;
+    transition: all 1000ms ease-in;
+    opacity: 0;
+  }
 }
 
 html,
