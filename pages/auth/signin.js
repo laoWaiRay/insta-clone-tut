@@ -66,7 +66,7 @@ export default function SignIn({ providers }) {
 
             <div className='bg-white border w-full px-10 pt-8'>
               <div className='w-52 h-20 relative mx-auto'>
-                <Image src='/images/instagram_logo_word.png' alt='instagram logo' layout='fill' />
+                <Image src='/images/instagram-logo-word.png' alt='instagram logo' layout='fill' />
               </div>
 
               <div className='mt-6'>

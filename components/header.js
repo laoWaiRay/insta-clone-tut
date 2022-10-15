@@ -26,7 +26,7 @@ export default function Header() {
         <div className='w-28 h-10 hover:cursor-pointer relative hidden md:inline-grid mt-1'>
           <Image 
             className='object-contain'
-            src='/images/instagram_logo_word.png'
+            src='/images/instagram-logo-word.png'
             alt='Instagram Logo'
             layout='fill'
           />
