@@ -15,7 +15,8 @@
 
   .login-phone-bg {
     background-size: 468.21px 634.15px;
-    background-position: -48px -5px;
+    background-position: -48px 0;
+    margin-right: 2rem;
   }
 
   .iphone-img {
@@ -25,6 +26,11 @@
     width: 251px;
     transition: all 1000ms ease-in;
     opacity: 0;
+  }
+  
+  .input {
+    @apply text-sm placeholder:text-gray-400 w-full border-gray-300
+    px-2 focus:ring-0 focus:border-gray-500;
   }
 }
 

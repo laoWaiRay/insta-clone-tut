@@ -75,15 +75,18 @@ export default function Header() {
                 <div onClick={signOut}
                   className='w-10 h-10 relative hover:cursor-pointer'
                 >
-                  <Image src={session?.user?.image} width={40} height={40} alt="Profile" className='rounded-full'/>
+                  <Image width={40} height={40} alt="Profile" className='rounded-full'
+                    src={
+                      session.user.image ?
+                      session.user.image :
+                      '/images/default_avatar.jpg'
+                    } 
+                  />
                 </div>
               </>
             ) : 
             <button onClick={signIn}>Sign In</button>
           }
-
-          
-
 
         </div>
       </div>
