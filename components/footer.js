@@ -19,7 +19,7 @@ export default function Footer() {
         <span className='text-sm text-gray-500 cursor-pointer'>Contact Uploading & Non-Users</span>
       </div>
 
-      <div className='space-x-2'>
+      <div className='space-x-2 text-center'>
         <span className='text-sm text-gray-500 cursor-pointer'>Dance</span>
         <span className='text-sm text-gray-500 cursor-pointer'>Food & Drink</span>
         <span className='text-sm text-gray-500 cursor-pointer'>Home & Garden</span>
