@@ -11,8 +11,16 @@ export default function SignIn({ providers }) {
   useEffect(() => {
     const images = document.getElementsByClassName('iphone-img');
     let index = 1;
+    let started = false;
   
     const interval = setInterval(() => {
+      if (!started)
+      {
+        images[0].style.opacity = 0;
+        console.log("started")
+        started = true;
+      }
+
       if (index === 0)
         images[images.length - 1].style.opacity = 0;
       else
@@ -22,7 +30,7 @@ export default function SignIn({ providers }) {
       index++;
       if (index === (images.length))
         index = 0;
-    }, 5000)
+    }, 4000)
 
     return () => clearInterval(interval);
   }, [])
@@ -31,7 +39,7 @@ export default function SignIn({ providers }) {
     const images = [];
     for (let i = 1; i <= 4; i++) {
       images.push (
-        <div className='iphone-img opacity-100' key={i}>
+        <div className={`iphone-img ${ i === 1 ? 'opacity-100' : 'opacity-0' }`} key={i}>
           <Image src={`/images/login/iphone_${i}.png`} layout='fill' alt='iphone screen' />
         </div>
       )

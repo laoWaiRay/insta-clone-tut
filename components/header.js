@@ -11,9 +11,12 @@ import {
   HomeIcon
 } from "@heroicons/react/24/outline"
 import { useSession, signIn, signOut } from 'next-auth/react'
+import { useRecoilState } from 'recoil';
+import { modalState } from '../atoms/modalAtom';
 
 export default function Header() {
   const { data: session } = useSession();
+  const [open, setOpen] = useRecoilState(modalState);
 
   console.log(session);
 
@@ -69,10 +72,10 @@ export default function Header() {
                 </div>
                 </div>
                 
-                <PlusCircleIcon className='navBtn' />
+                <PlusCircleIcon className='navBtn' onClick={() => setOpen(true)} />
                 <UserGroupIcon className='navBtn' />
                 <HeartIcon className='navBtn' />
-                <div onClick={signOut}
+                <div onClick={() => signOut({ callbackUrl: '/api/auth/signin' })}
                   className='w-10 h-10 relative hover:cursor-pointer'
                 >
                   <Image width={40} height={40} alt="Profile" className='rounded-full'
