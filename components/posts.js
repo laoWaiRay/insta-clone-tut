@@ -22,7 +22,7 @@ export default function Posts() {
             key={post.id}
             id={post.id}
             username={post.data()?.username}
-            userImg={post.data().profileImg ? post.data().profileImg : ''}
+            userImg={post.data().profileImg ? post.data().profileImg : '/images/default_avatar.jpg'}
             img={post.data().image}
             caption={post.data()?.caption}
           />

@@ -12,9 +12,21 @@ export const authOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
-        console.dir(credentials)
-        const user = { id: 1, name: "J Smith", email: "jsmith@example.com" }
-        // const user = null;
+        let user = { id: 1, name: "J Smith", email: "jsmith@example.com" }
+        // const res = await fetch('/api/auth/login', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(credentials),
+        // });
+
+        // const json = await res.json();
+        // console.log('JSON: ', json)
+
+        
+        if (req.query.username != 'user')
+          user = null;
 
         if (user) {
           return user

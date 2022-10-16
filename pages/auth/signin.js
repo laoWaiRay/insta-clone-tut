@@ -49,7 +49,7 @@ export default function SignIn({ providers }) {
 
   return (
     <div className='min-h-screen bg-slate-50 flex flex-col justify-between'>
-      <div className='flex justify-center pt-12 lg:pt-24'>
+      <div className='flex justify-center pt-8 lg:pt-24'>
         <div className="h-[581.15px] w-[380.3px] bg-[url('/images/login/iphone_bg.png')]
           login-phone-bg relative hidden lg:block"
         >
@@ -75,7 +75,7 @@ export default function SignIn({ providers }) {
                   <div key={provider.name}>
                     <form onSubmit={(e) => {
                       e.preventDefault();
-                      SignIntoProvider("credentials", { callbackUrl: '/' });
+                      SignIntoProvider("credentials", { callbackUrl: '/' }, { username, password });
                     }}>
                       <input type='text' placeholder='Phone number, username, or email' 
                         value={username} onChange={(e) => setUsername(e.target.value)}

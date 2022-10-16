@@ -20,7 +20,7 @@ export default function Stories() {
 
   return (
     <div className='flex space-x-2 overflow-x-scroll bg-white
-    mt-8 border-gray-200 border rounded-md p-3 scrollbar-thin
+    md:mt-8 -mb-7 md:mb-0 border-gray-200 border rounded-md p-3 scrollbar-thin
     scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full
     scrollbar-track-rounded-full'>
       {
