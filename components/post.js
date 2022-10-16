@@ -11,7 +11,7 @@ import {
 
 export default function Post({ id, username, userImg, img, caption }) {
   return (
-    <div>
+    <div className='bg-white'>
       {/* Header */}
       <div className='flex items-center p-5 bg-white mt-7 rounded-sm'>
         <div className='rounded-full h-12 w-12 object-contain border cursor-pointer p-0.5 mr-3'>
@@ -25,7 +25,7 @@ export default function Post({ id, username, userImg, img, caption }) {
 
       {/* Image */}
       <div className='relative w-full aspect-square'>
-        <Image src={img} layout='fill' alt='content' className='object-cover' />
+        <Image src={img} layout='fill' objectFit='contain' alt='content' className='object-cover' />
       </div>
 
       {/* Buttons */}

@@ -54,7 +54,7 @@ export default function Header() {
         </div>
 
         <div className='flex justify-center items-center space-x-4'>
-          <Bars3Icon className='h-10 w-10 md:hidden hover:cursor-pointer'/>
+          {/* <Bars3Icon className='h-10 w-10 md:hidden hover:cursor-pointer'/> */}
           <HomeIcon className='navBtn'/>
 
           {
@@ -72,7 +72,11 @@ export default function Header() {
                 </div>
                 </div>
                 
-                <PlusCircleIcon className='navBtn' onClick={() => setOpen(true)} />
+                <PlusCircleIcon 
+                  className='h-7 inline-flex cursor-pointer
+                  hover:scale-110 transition-all duration-300 ease-out' 
+                  onClick={() => setOpen(true)} 
+                />
                 <UserGroupIcon className='navBtn' />
                 <HeartIcon className='navBtn' />
                 <div onClick={() => signOut({ callbackUrl: '/api/auth/signin' })}

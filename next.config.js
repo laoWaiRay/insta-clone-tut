@@ -3,7 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ['cloudflare-ipfs.com', 'avatars.githubusercontent.com', 'lh3.googleusercontent.com'],
+    domains: ['cloudflare-ipfs.com', 'avatars.githubusercontent.com', 'lh3.googleusercontent.com',
+    'firebasestorage.googleapis.com'],
+    dangerouslyAllowSVG: true,
   },
 }
 
