@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import Post from './post'
 import { db } from '../firebase';
-import { collection, doc, getDoc, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, orderBy, query, where } from "firebase/firestore";
 
 export default function Posts() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(query(collection(db, 'posts'), orderBy('timestamp', 'desc')), snapshot => {
+      snapshot.docs.forEach(doc => console.log(doc.data()))
       setPosts(snapshot.docs)
     });
 

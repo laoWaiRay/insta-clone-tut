@@ -49,7 +49,7 @@ export default function SignIn({ providers }) {
 
   return (
     <div className='min-h-screen bg-slate-50 flex flex-col justify-between'>
-      <div className='flex justify-center pt-8 lg:pt-24'>
+      <div className='flex justify-center pt-8 lg:pt-14'>
         <div className="h-[581.15px] w-[380.3px] bg-[url('/images/login/iphone_bg.png')]
           login-phone-bg relative hidden lg:block"
         >
@@ -86,8 +86,9 @@ export default function SignIn({ providers }) {
                         className='input mb-3'
                       />
                       <button 
-                        className='bg-blue-200 p-1 w-full text-white rounded-sm
-                        mb-4 cursor-pointer'
+                        className={`p-1 w-full text-white rounded-sm
+                        mb-4 ${username ? 'cursor-pointer bg-blue-500' : 'bg-blue-200'}`}
+                        disabled
                       >
                         Log In
                       </button>

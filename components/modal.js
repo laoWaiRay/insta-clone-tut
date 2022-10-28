@@ -53,6 +53,7 @@ export default function Modal() {
       username: session.user.username,
       caption: captionRef.current.value,
       profileImg: session.user.image ? session.user.image : null,
+      image: 'null',
       timestamp: serverTimestamp()
     })
 
