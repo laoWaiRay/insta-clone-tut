@@ -32,8 +32,8 @@ export default function Modal() {
   }
 
   const removeImageFromPost = (e) => {
-    filePickerRef.current.value = '';
-    // console.log(filePickerRef.current.files)
+    // filePickerRef.current.value = '';
+    console.log('FILEPICKER: ', filePickerRef.current)
     console.log(selectedFile)
     setSelectedFile(null)
   }
@@ -53,7 +53,6 @@ export default function Modal() {
       username: session.user.username,
       caption: captionRef.current.value,
       profileImg: session.user.image ? session.user.image : null,
-      image: 'null',
       timestamp: serverTimestamp()
     })
 

@@ -17,6 +17,7 @@ import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverT
 import { useSession } from 'next-auth/react';
 import { db } from '../firebase';
 import Moment from 'react-moment';
+import PopupMenu from './popupMenu';
 
 export default function Post({ id, username, userImg, img, caption }) {
   const { data: session } = useSession();
@@ -24,6 +25,7 @@ export default function Post({ id, username, userImg, img, caption }) {
   const [comment, setComment] = useState('');
   const [likes, setLikes] = useState([]);
   const [hasLiked, setHasLiked] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(query(collection(db, 'posts', id, 'comments'), orderBy('timestamp', 'desc')), 
@@ -77,18 +79,36 @@ export default function Post({ id, username, userImg, img, caption }) {
       console.log('Error deleting comment')
     }
   }
+  
+  const deletePost = async (e, postId) => {
+    try {
+      await deleteDoc(doc(db, 'posts', postId));
+      console.log('Successfully deleted post: ', postId)
+    } catch (error) {
+      console.log('Error deleting post')
+    }
+  }
 
   return (
     <div className='bg-white'>
       {/* Header */}
-      <div className='flex items-center p-5 bg-white mt-7 rounded-sm'>
+      <div className='flex items-center p-5 bg-white mt-7 rounded-sm relative z-20'>
         <div className='rounded-full h-12 w-12 object-contain border cursor-pointer p-0.5 mr-3'>
           <Image src={userImg} height={48} width={48} alt="author"
             className='rounded-full'
           />
         </div>
         <p className='flex-1 font-bold'>{username}</p>
-        <EllipsisHorizontalIcon className='h-8 cursor-pointer'/>
+        <EllipsisHorizontalIcon className='h-8 cursor-pointer select-none'
+          onClick={() => setIsPopupOpen(!isPopupOpen)}
+        />
+        {isPopupOpen && 
+          <PopupMenu 
+            postId={id}
+            deletePost={deletePost}
+            closePopup={() => setIsPopupOpen(false)}
+          />
+        }
       </div>
 
       {/* Image */}
@@ -130,22 +150,22 @@ export default function Post({ id, username, userImg, img, caption }) {
               className='flex items-center mb-2'
             >
               <div className='flex items-center space-x-4'>
-                <div className='w-10 h-10 rounded-full relative'>
+                <div className='w-8 h-8 rounded-full relative'>
                   <Image src={comment.data().userImage ? comment.data().userImage : '/images/default_avatar.jpg'}
                     alt='profile' layout='fill' className='rounded-full'
                   />
                 </div>
-                <p className='text-sm flex-1'>
+                <p className='text-sm flex-1 pr-3'>
                   <span className='font-bold'>{comment.data().username + " "}</span>
                   {comment.data().comment}
                 </p>
               </div>
 
-              <Moment fromNow className='pr-5 text-sm ml-auto'>
+              <Moment fromNow className='pr-3 text-xs ml-auto flex-shrink-0'>
                 {comment.data().timestamp?.toDate()}
               </Moment>
 
-              <XMarkIcon className='w-5 h-5 mr-5 hover:cursor-pointer'
+              <XMarkIcon className='w-5 h-5 mr-5 hover:cursor-pointer flex-shrink-0'
                 onClick={(e) => deleteComment(e, comment.id)}
               />
             </div>

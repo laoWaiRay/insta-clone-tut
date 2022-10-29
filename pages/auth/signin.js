@@ -2,11 +2,14 @@ import { getProviders, signIn as SignIntoProvider } from 'next-auth/react'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import Footer from '../../components/footer';
+import { useRouter } from 'next/router';
+import FlashMsg from '../../components/flashMsg';
 
 export default function SignIn({ providers }) {
-  console.log(providers)
+  const router = useRouter()
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const images = document.getElementsByClassName('iphone-img');
@@ -48,8 +51,9 @@ export default function SignIn({ providers }) {
   }
 
   return (
-    <div className='min-h-screen bg-slate-50 flex flex-col justify-between'>
-      <div className='flex justify-center pt-8 lg:pt-14'>
+    <div className='min-h-screen bg-slate-50 flex flex-col justify-center'>
+      <FlashMsg />
+      <div className='flex justify-center pt-8 lg:pt-8'>
         <div className="h-[581.15px] w-[380.3px] bg-[url('/images/login/iphone_bg.png')]
           login-phone-bg relative hidden lg:block"
         >
@@ -68,14 +72,29 @@ export default function SignIn({ providers }) {
               <div className='w-52 h-20 relative mx-auto'>
                 <Image src='/images/instagram-logo-word.png' alt='instagram logo' layout='fill' />
               </div>
+              
+              {error && <p className='text-red-500 -my-2'>{error}</p>}
 
               <div className='mt-6'>
                 {Object.values(providers).map((provider) => (
                   provider.id === 'credentials' ?
                   <div key={provider.name}>
-                    <form onSubmit={(e) => {
+                    <form onSubmit={async (e) => {
                       e.preventDefault();
-                      SignIntoProvider("credentials", { callbackUrl: '/' }, { username, password });
+                      const res = await SignIntoProvider("credentials", {
+                        // callbackUrl: '/',
+                        redirect: false,
+                        username: username,
+                        password: password
+                      });
+                      if (res?.error)
+                      {
+                        setError(res.error)
+                      }
+                      else
+                      {
+                        router.push('/')
+                      }
                     }}>
                       <input type='text' placeholder='Phone number, username, or email' 
                         value={username} onChange={(e) => setUsername(e.target.value)}
@@ -88,7 +107,7 @@ export default function SignIn({ providers }) {
                       <button 
                         className={`p-1 w-full text-white rounded-sm
                         mb-4 ${username ? 'cursor-pointer bg-blue-500' : 'bg-blue-200'}`}
-                        disabled
+                        disabled={!username}
                       >
                         Log In
                       </button>
@@ -129,7 +148,11 @@ export default function SignIn({ providers }) {
 
             <div className='bg-white py-4 px-14 my-3 border text-sm w-full'>
               <span>Don&apos;t have an account?</span>
-              <span className='font-semibold text-blue-400 ml-1 cursor-pointer'>Sign up</span>
+              <span className='font-semibold text-blue-400 ml-1 cursor-pointer'
+                onClick={() => router.push('/auth/signup')}
+              >
+                Sign up
+              </span>
             </div>
 
             <div className='my-1 px-14 text-sm w-full'>

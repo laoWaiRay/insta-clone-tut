@@ -2,37 +2,41 @@ import NextAuth from "next-auth/next";
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from "next-auth/providers/credentials";
+import { getDocs, collection, query, where } from "firebase/firestore";
+import { db } from "../../../firebase";
 
 export const authOptions = {
   providers: [
     CredentialsProvider({
+      id: "credentials",
       name: "Phone number, username, or email",
       credentials: {
         username: { label: "Username", type: "text", placeholder: "Phone number, username, or email" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
-        let user = { id: 1, name: "J Smith", email: "jsmith@example.com" }
-        // const res = await fetch('/api/auth/login', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(credentials),
-        // });
+          let user = null
+          const username = credentials.username
+          const password = credentials.password
+          const querySnapshot = await getDocs(query(collection(db, 'users'), 
+            where("username", "==", username), 
+            where("password", "==", password)))
+          
+          if(querySnapshot.size === 1)
+          {
+            user = {
+              id: querySnapshot.docs[0].id,
+              name: querySnapshot.docs[0].data().username,
+            }
+          }
 
-        // const json = await res.json();
-        // console.log('JSON: ', json)
 
-        
-        if (req.query.username != 'user')
-          user = null;
-
-        if (user) {
-          return user
-        } else {
-          return null
-        }
+          if (user) {
+            console.log("logged in")
+            return user
+          } else {
+            throw new Error('Incorrect username or password')
+          }
       }
     }),
     GithubProvider({
@@ -59,13 +63,10 @@ export const authOptions = {
       console.log('Token: ', token)
       return session;
     }
-  }
-  // session: {
-  //   strategy: "jwt"
-  // },
-  // jwt: {
-  //   maxAge: 60 * 60 * 24 * 30,
-  // }
+  },
+  session: {
+    strategy: 'jwt',
+  },
 }
 
 export default NextAuth(authOptions)

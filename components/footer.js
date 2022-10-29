@@ -3,7 +3,7 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline'
 
 export default function Footer() {
   return (
-    <div className='flex flex-col items-center justify-start mb-auto px-14 pb-4 mt-4'>
+    <div className='flex flex-col items-center justify-start px-14 pb-4 mt-6'>
       <div className='space-x-2 text-center'>
         <span className='text-sm text-gray-500 cursor-pointer'>Meta</span>
         <span className='text-sm text-gray-500 cursor-pointer'>About</span>

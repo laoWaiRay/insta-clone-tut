@@ -13,12 +13,12 @@ import {
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { useRecoilState } from 'recoil';
 import { modalState } from '../atoms/modalAtom';
+import { chatState } from '../atoms/chatAtom';
 
 export default function Header() {
   const { data: session } = useSession();
   const [open, setOpen] = useRecoilState(modalState);
-
-  console.log(session);
+  const [isChatOpen, setIsChatOpen] = useRecoilState(chatState);
 
   return (
     <header className='shadow-sm border-b z-50 bg-white'>
@@ -62,14 +62,16 @@ export default function Header() {
             (
               <>
                 <div className='navBtn relative'>
-                <PaperAirplaneIcon className='navBtn -rotate-45' />
-                <div 
+                <PaperAirplaneIcon className='navBtn -rotate-45' 
+                  onClick={() => setIsChatOpen(!isChatOpen)}
+                />
+                {/* <div 
                   className='absolute -top-1 -right-2 text-xs w-5 h-5 
                   bg-red-500 rounded-full flex justify-center items-center
                   text-white'
                 >
                   3
-                </div>
+                </div> */}
                 </div>
                 
                 <PlusCircleIcon 
