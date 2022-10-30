@@ -2,8 +2,9 @@ import NextAuth from "next-auth/next";
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getDocs, collection, query, where } from "firebase/firestore";
-import { db } from "../../../firebase";
+import { getDocs, collection, query, where, addDoc } from "firebase/firestore";
+import { db, storage } from "../../../firebase";
+import { getDownloadURL, ref } from "firebase/storage";
 
 export const authOptions = {
   providers: [
@@ -27,12 +28,12 @@ export const authOptions = {
             user = {
               id: querySnapshot.docs[0].id,
               name: querySnapshot.docs[0].data().username,
+              image: querySnapshot.docs[0].data().image
             }
           }
 
 
           if (user) {
-            console.log("logged in")
             return user
           } else {
             throw new Error('Incorrect username or password')
@@ -45,7 +46,7 @@ export const authOptions = {
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
    
   ],
@@ -53,19 +54,33 @@ export const authOptions = {
     signIn: '/auth/signin'
   },
   callbacks: {
-    async session({ session, token, user }) {
+    async session({ session, token }) {
+      console.log("SESSION: ", session)
+      console.log("TOKEN: ", token)
+
       session.user.username = session.user.name
         .split(" ")
         .join("")
         .toLocaleLowerCase();
 
       session.user.uid = token.sub;
-      console.log('Token: ', token)
+
+      const querySnapshot = await getDocs(query(collection(db, 'users'), 
+        where("username", "==", session.user.name)))
+
+      if (querySnapshot.size === 0)
+      {
+        const imageRef = ref(storage, 'default_avatar.jpg')
+        const downloadURL = await getDownloadURL(imageRef);
+
+        addDoc(collection(db, 'users'), {
+          username: session.user.name,
+          image: session.user.image
+        })
+      }
+
       return session;
     }
-  },
-  session: {
-    strategy: 'jwt',
   },
 }
 

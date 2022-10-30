@@ -1,23 +1,20 @@
 import React, { Fragment, useRef, useState } from 'react'
 import { useRecoilState } from 'recoil'
-import { modalState } from '../atoms/modalAtom'
+import { avatarModalState } from '../atoms/avatarModalAtom'
 import { Dialog, Transition } from '@headlessui/react'
 import { CameraIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { db, storage } from '../firebase'
-import { addDoc, collection, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
+import { updateDoc, doc, getDoc } from 'firebase/firestore';
 import { ref, getDownloadURL, uploadString } from 'firebase/storage'
 
-
-export default function Modal() {
+export default function AvatarModal() {
   const { data: session } = useSession();
-  const [open, setOpen] = useRecoilState(modalState);
+  const [isAvatarOpen, setIsAvatarOpen] = useRecoilState(avatarModalState);
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const filePickerRef = useRef(null);
-  const captionRef = useRef(null);
-
 
   const addImageToPost = (e) => {
     const reader = new FileReader();
@@ -33,8 +30,8 @@ export default function Modal() {
 
   const removeImageFromPost = (e) => {
     filePickerRef.current.value = '';
-    console.log('FILEPICKER: ', filePickerRef.current)
-    console.log(selectedFile)
+    // console.log('FILEPICKER: ', filePickerRef.current)
+    // console.log(selectedFile)
     setSelectedFile(null)
   }
 
@@ -49,38 +46,40 @@ export default function Modal() {
     // 3 Upload image to firebase storage with post ID
     // 4 Get a download URL from firebase storage and update feed
 
-    const docRef = await addDoc(collection(db, 'posts'), {
-      username: session.user.username,
-      caption: captionRef.current.value,
-      profileImg: session.user.image ? session.user.image : null,
-      timestamp: serverTimestamp()
-    })
+    // const docRef = await addDoc(collection(db, 'users', session.id), {
+    //   username: session.user.username,
+    //   caption: captionRef.current.value,
+    //   profileImg: session.user.image ? session.user.image : null,
+    //   timestamp: serverTimestamp()
+    // })
 
-    console.log("New doc added with ID", docRef.id)
+    const docRef = await getDoc(doc(db, 'users', session.user.uid));
 
-    // Reference to firebase storage
-    const imageRef = ref(storage, `posts/${docRef.id}/image`)
+    console.log("New doc added with ID", docRef)
+
+    // Reference to firebase storage ***
+    const imageRef = ref(storage, `users/${docRef.id}/avatar`)
 
     uploadString(imageRef, selectedFile, 'data_url')
       .then(async snapshot => {
         const downloadURL = await getDownloadURL(imageRef);
-        await updateDoc(doc(db, 'posts', docRef.id), {
+        await updateDoc(doc(db, 'users', docRef.id), {
           image: downloadURL
         })
       })
     
-    setOpen(false)
+    setIsAvatarOpen(false)
     setLoading(false)
     removeImageFromPost()
   }
 
   return (
     <Transition
-      show={open}
+      show={isAvatarOpen}
       as={Fragment}
     >
       <Dialog
-        onClose={() => setOpen(false)}
+        onClose={() => setIsAvatarOpen(false)}
         className='relative z-50 flex justify-center items-center'
       >
          <Transition.Child
@@ -146,7 +145,7 @@ export default function Modal() {
                   as="h3"
                   className='text-lg leading-6 font-medium text-gray-900'
                 >
-                  Upload a photo
+                  Edit profile picture
                 </Dialog.Title>
 
                 <div>
@@ -158,20 +157,11 @@ export default function Modal() {
                   />
                 </div>
 
-                <div className='mt-2'>
-                  <input 
-                    className='border-none focus:ring-0 w-full text-center'
-                    type='text'
-                    ref={captionRef}
-                    placeholder='Enter a caption'
-                  />
-                </div>
-
                 <div className='mt-5 sm:mt-6'>
                   <button
                     type='button'
                     onClick={uploadPost}
-                    disabled={loading}
+                    disabled={loading || !selectedFile}
                     className='inline-flex justify-center w-full border border-transparent shadow-sm
                     px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none
                     focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm disabled:bg-gray-300
@@ -180,7 +170,7 @@ export default function Modal() {
                     {
                       loading ?
                       'Uploading...' :
-                      'Upload Post'
+                      'Confirm'
                     }
                   </button>
                 </div>

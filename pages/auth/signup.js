@@ -2,10 +2,11 @@ import React, { useState } from 'react'
 import Image from 'next/image';
 import Link from 'next/link';
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { db, storage } from '../../firebase';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { flashState } from '../../atoms/flashAtom';
+import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 
 export default function Signup() {
   const [username, setUsername] = useState('');
@@ -33,9 +34,13 @@ export default function Signup() {
       setError('Username already in use')
       return
     } else {
+      const imageRef = ref(storage, 'default_avatar.jpg')
+      const downloadURL = await getDownloadURL(imageRef);
+
       addDoc(collection(db, 'users'), {
         username: username,
-        password: password
+        password: password,
+        image: downloadURL
       })
       setError('')
       setFlashMsg("Successfully created account")

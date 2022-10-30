@@ -1,14 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { signOut, useSession } from 'next-auth/react'
+import { useRecoilState } from 'recoil';
+import { avatarModalState } from '../atoms/avatarModalAtom';
 
 export default function MiniProfile() {
   const { data: session } = useSession();
+  const [isAvatarOpen, setIsAvatarOpen] = useRecoilState(avatarModalState)
+  console.log('SESSION', session)
+
+  useState(() => {
+    console.log(isAvatarOpen)
+  }, [isAvatarOpen])
 
   return (
     <div className='mt-14 ml-10 flex items-center justify-between'>
-      <div className='w-12 h-12 relative'>
+      <div className='w-12 h-12 relative rounded-full cursor-pointer'>
         <Image 
+          onClick={() => setIsAvatarOpen(true)}
           src={
             session?.user.image ?
             session.user.image :

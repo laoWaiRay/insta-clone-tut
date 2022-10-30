@@ -18,21 +18,29 @@ import { useSession } from 'next-auth/react';
 import { db } from '../firebase';
 import Moment from 'react-moment';
 import PopupMenu from './popupMenu';
+import { useRecoilState } from 'recoil';
+import { usersState } from '../atoms/usersAtom';
 
-export default function Post({ id, username, userImg, img, caption }) {
+export default function Post({ id, username, img, userImgOATH, caption }) {
   const { data: session } = useSession();
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState('');
   const [likes, setLikes] = useState([]);
   const [hasLiked, setHasLiked] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [userImg, setUserImg] = useState('')
+  const [usersData, setUsersData] = useRecoilState(usersState);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(query(collection(db, 'posts', id, 'comments'), orderBy('timestamp', 'desc')), 
       (snapshot) => setComments(snapshot.docs))
-    
+
+    const userData = usersData.filter((user) => user.username === username)
+    setUserImg(userData[0]?.image)
+
+
     return unsubscribe
-  }, [id])
+  }, [id, username, usersData])
 
   useEffect(() => {
     const unsubscribe = onSnapshot(query(collection(db, 'posts', id, 'likes')), 
@@ -63,7 +71,7 @@ export default function Post({ id, username, userImg, img, caption }) {
 
     await addDoc(collection(db, 'posts', id, 'comments'), {
       comment: commentToSend,
-      username: session.user.username,
+      username: session.user.name,
       userImage: session.user.image ? session.user.image : null,
       timestamp: serverTimestamp(),
     });
@@ -89,12 +97,18 @@ export default function Post({ id, username, userImg, img, caption }) {
     }
   }
 
+  const getCommentImg = (commentUsername) => {
+    console.log("USERNAME", usersData)
+    const userData = usersData.filter((user) => user.username == commentUsername)
+    return userData[0]?.image || '/images/default_avatar.jpg'
+  }
+
   return (
     <div className='bg-white'>
       {/* Header */}
       <div className='flex items-center p-5 bg-white mt-7 rounded-sm relative z-20'>
         <div className='rounded-full h-12 w-12 object-contain border cursor-pointer p-0.5 mr-3'>
-          <Image src={userImg} height={48} width={48} alt="author"
+          <Image src={userImg || userImgOATH || '/images/default_avatar.jpg'} height={48} width={48} alt="author"
             className='rounded-full'
           />
         </div>
@@ -151,7 +165,7 @@ export default function Post({ id, username, userImg, img, caption }) {
             >
               <div className='flex items-center space-x-4'>
                 <div className='w-8 h-8 rounded-full relative'>
-                  <Image src={comment.data().userImage ? comment.data().userImage : '/images/default_avatar.jpg'}
+                  <Image src={getCommentImg(comment.data().username)}
                     alt='profile' layout='fill' className='rounded-full'
                   />
                 </div>
