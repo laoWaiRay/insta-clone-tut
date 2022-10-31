@@ -44,7 +44,7 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
       const tmp = []
       querySnapshot.forEach((doc) => {
         tmp.push(doc.data())
-        tmp.sort((a, b) => b.messages[b.messages.length - 1].timestamp - a.messages[a.messages.length - 1].timestamp)
+        tmp.sort((a, b) => b.messages[b.messages.length - 1]?.timestamp - a.messages[a.messages.length - 1]?.timestamp)
       })
       setAllConvos(tmp)
     });
@@ -356,7 +356,7 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
                     </div>
                     <div className='flex flex-col'>
                       <span className='font-bold'>{ getConvoUsername(convo) }</span>
-                      <span>{ convo.messages[convo.messages.length - 1].text }</span>
+                      <span>{ convo.messages[convo.messages?.length - 1]?.text }</span>
                     </div>    
                   </div>
                 ))
