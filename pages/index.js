@@ -66,7 +66,7 @@ export default function Home({ users }) {
           miniChat={miniChat}
           toggleMiniChat={toggleMiniChat}
           setMiniChat={setMiniChat}
-          user={session.user.username}
+          user={session.user.name}
         />
       }
       {/* Avatar Modal */}

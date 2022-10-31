@@ -1,10 +1,11 @@
-import { ChevronDownIcon, ChevronLeftIcon } from '@heroicons/react/24/outline'
-import { XMarkIcon } from '@heroicons/react/24/solid'
+import { MicrophoneIcon, ChevronDownIcon, ChevronLeftIcon, PhotoIcon, FaceSmileIcon } from '@heroicons/react/24/outline'
+import { CameraIcon, XMarkIcon } from '@heroicons/react/24/solid'
 import { addDoc, arrayUnion, collection, doc, getDocs, onSnapshot, orderBy, 
   query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import Moment from 'react-moment'
 import { db } from '../firebase'
 
 // const messages = [
@@ -33,7 +34,23 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
   const [convoUser, setConvoUser] = useState([])
   const [messages, setMessages] = useState([])
   const [chatId, setChatId] = useState('')
+  const [allConvos, setAllConvos] = useState([])
+  const messagesRef = useRef(null)
+  const timeRef = useRef(0)
   const { data: session } = useSession()
+
+  useEffect(() => {
+    const unsub = onSnapshot(query(collection(db, "chats"), where('users', 'array-contains', user)), (querySnapshot) => {
+      const tmp = []
+      querySnapshot.forEach((doc) => {
+        tmp.push(doc.data())
+        tmp.sort((a, b) => b.messages[b.messages.length - 1].timestamp - a.messages[a.messages.length - 1].timestamp)
+      })
+      setAllConvos(tmp)
+    });
+
+    return unsub
+  }, [user])
 
   // ReGex is fun...
   useEffect(() => {
@@ -46,7 +63,6 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
     }
     const results = users.filter((user) => user.username.match(re))
     setSearchResults(results)
-    console.log(searchValue,results)
   }, [searchValue, users])
 
   useEffect(() => {
@@ -78,6 +94,7 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
       fetchData()
       return
     }
+
     const fetchData = async () => {
       const querySnapshot = await getDocs(query(collection(db, 'chats'), where('users', 'array-contains', user)))
       let chat = null
@@ -115,21 +132,23 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
     if (chatId === '')
       return
     const unsub = onSnapshot(doc(db, "chats", chatId), (doc) => {
-      console.log(doc.data().messages)
       setMessages(doc.data().messages);
     });
 
     return unsub
   }, [chatId])
 
-  const openConvo = async (e) => {
+  useEffect(() => {
+    if (convoOpen) {
+      const element = messagesRef.current
+      element.scrollTop = element.scrollHeight
+    }
+  }, [convoOpen, messages])
+
+  const openConvo = async (e, convoUsername) => {
     e.preventDefault()
     setConvoOpen(true);
     setSearchValue('')
-
-    const convoUsername = e.target.outerText
-    console.log('USER: ', convoUsername)
-    console.log(users)
 
     const re = new RegExp(`^${convoUsername}$`)
     const convoUserData = users.filter((user) => user.username.match(re))
@@ -140,6 +159,7 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
     setConvoOpen(false)
     setConvoUser([])
     setChatId('')
+    setMessages([])
   }
 
   const sendMessage = async (e) => {
@@ -158,6 +178,21 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
         timestamp: created_at
       })
     })
+  }
+
+  const getConvoUsername = (convo) => {
+    return convo.users.length === 1 ? convo.users[0] : convo.users[0] != user ? convo.users[0] : convo.users[1]
+  }
+
+  const shouldDisplayTimestamp = (time) => {
+    console.log("TIME REF: ", timeRef.current)
+    if (Math.abs(timeRef.current - time) > 60 * 60)
+    {
+      timeRef.current = time
+      return true
+    }
+    timeRef.current = time
+    return false
   }
 
   return (
@@ -232,7 +267,7 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
                   <div 
                     key={user.username}
                     className="border-b px-3 py-2 flex items-center cursor-pointer hover:bg-slate-100"
-                    onClick={openConvo}
+                    onClick={(e) => openConvo(e, e.target.outerText)}
                   >
                     <div className='h-6 w-6 relative rounded-full mr-2'>
                       <Image src={user.image || '/images/default_avatar.jpg'} alt='avatar' layout='fill' 
@@ -251,41 +286,87 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
         {/* Main - Convo */}
         {
           convoOpen ? (
-            <div className='h-80 px-4 py-2'>
+            <>
+              <div 
+                className='h-80 px-4 py-2 overflow-y-auto scroll z-50'
+                ref={messagesRef}
+              >
+                {
+                  messages.map((msg) => (
+                    <div key={msg.timestamp} >
+                      {shouldDisplayTimestamp(msg.timestamp.seconds) &&
+                        <Moment format='ddd, MMM D LT' className='text-sm text-gray-400 my-1 block'>
+                          {msg.timestamp.toDate()}
+                        </Moment>
+                      }
+                      <div className='flex py-2'>
+                        <div className={`relative w-8 h-8 flex-shrink-0 mr-2 rounded-full ${msg.sender != user && 'order-2 mr-0 ml-2'}`}>
+                          <Image src={msg.sender === user ? session.user.image : convoUser.image} 
+                            className='rounded-full' alt='profile' layout='fill' 
+                          />
+                        </div>
+                        <div className='bg-gray-200 px-3 py-1 rounded-full w-full text-gray-500'>
+                          {msg.text}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+              {/* Messages */}
+              <div className='p-3 h-14'>
+                  <form onSubmit={sendMessage}>
+                    <div className='relative'>
+                      <div className='absolute h-[26px] w-[26px] bottom-0.5 left-1 rounded-full border border-blue-500 bg-blue-500 p-[3px] flex'>
+                        <CameraIcon className='inline-block text-white' />
+                      </div>
+                      <input 
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder='Message'
+                        type='text'
+                        className='bg-gray-200 text-black px-3 pl-9 py-1 pr-24 rounded-full w-full
+                        focus:ring-gray-400 border-0 placeholder:text-gray-400'
+                      />
+                      <div className='absolute right-2 top-1 flex space-x-2'>
+                        <MicrophoneIcon className='h-6 w-6'/>
+                        <PhotoIcon className='h-6 w-6' />
+                        <FaceSmileIcon className='h-6 w-6' />
+                      </div>
+                    </div>
+                  </form>
+              </div>
+            </>
+          ) : (
+            <div className='h-[376px] overflow-y-auto'>
               {
-                messages.map((msg) => (
-                  <div key={msg.id} className='flex py-2'>
-                    <div className='relative w-8 h-8 flex-shrink-0 mr-2'>
-                      <Image src={msg.sender === user ? session.user.image : convoUser.image} alt='profile' layout='fill' />
+                allConvos.map((convo) => (
+                  <div 
+                    key={convo.timestamp.seconds}
+                    onClick={(e) => openConvo(e, getConvoUsername(convo))}
+                    className='flex items-center py-2 px-2 cursor-pointer hover:bg-slate-100'
+                  >
+                    <div className='relative h-10 w-10 mr-3 rounded-full'>
+                      <Image 
+                        src={ users.find((user) => user.username === getConvoUsername(convo)).image } 
+                        alt='profile' 
+                        layout='fill'
+                        className='rounded-full'
+                      />
                     </div>
-                    <div className='bg-gray-200 px-3 py-1 rounded-full w-full text-gray-500'>
-                      {msg.text}
-                    </div>
+                    <div className='flex flex-col'>
+                      <span className='font-bold'>{ getConvoUsername(convo) }</span>
+                      <span>{ convo.messages[convo.messages.length - 1].text }</span>
+                    </div>    
                   </div>
                 ))
               }
-            </div>
-          ) : (
-            <div className='h-80 px-4 py-2'>
-              LOL not done yet
             </div>
           )
         }
        
 
-        {/* Messages */}
-        <div className='bg-pink p-3'>
-          <form onSubmit={sendMessage}>
-            <input 
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder='Message'
-              type='text'
-              className='bg-gray-200 text-black px-3 py-1 rounded-full w-full
-              focus:ring-gray-400 border-0 placeholder:text-gray-400'
-            />
-          </form>
-        </div>
+        
       </div>
       )}
       
