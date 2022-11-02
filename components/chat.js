@@ -211,7 +211,7 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
         </div>
       ) :
       (<div className='fixed bottom-0 right-0 z-50 border border-b-0 border-slate-300
-      pt-2 bg-white w-[320px] font-medium shadow-xl'>
+      pt-2 bg-white w-full px-2 md:w-[320px] md:px-0 font-medium shadow-xl '>
         {/* Header / Search */}
         <div className='flex items-center relative bg-white z-50 mb-2 h-10'>
           {
@@ -282,13 +282,12 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
           )}
         </div>
 
-        
         {/* Main - Convo */}
         {
           convoOpen ? (
             <>
               <div 
-                className='h-80 px-4 py-2 overflow-y-auto scroll z-50'
+                className='h-96 md:h-80 px-4 py-2 overflow-y-auto scroll z-50'
                 ref={messagesRef}
               >
                 {
@@ -338,7 +337,7 @@ export default function Chat({ users, setIsChatOpen, miniChat, setMiniChat, togg
               </div>
             </>
           ) : (
-            <div className='h-[376px] overflow-y-auto'>
+            <div className='h-[440px] md:h-[376px] overflow-y-auto'>
               {
                 allConvos.map((convo) => (
                   <div 
